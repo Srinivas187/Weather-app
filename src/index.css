@@ -1,0 +1,321 @@
+/* ============================================================
+   WEATHERPULSE — Global Styles & Design System
+   Morning Sky Edition
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+  /* Morning sky palette */
+  --sky-dawn:    #FF6B35;
+  --sky-sunrise: #FF8C61;
+  --sky-gold:    #FFC947;
+  --sky-amber:   #FFB347;
+  --sky-peach:   #FFD4A3;
+  --sky-pale:    #FFF0D6;
+  --sky-horizon: #FF7043;
+  --sky-blue:    #87CEEB;
+  --sky-mid:     #B8E4F7;
+  --sky-high:    #5BC8E8;
+  --sky-zenith:  #2E86AB;
+
+  /* Glass surfaces — warm tinted */
+  --glass-bg:          rgba(255,255,255,0.32);
+  --glass-bg-hover:    rgba(255,255,255,0.48);
+  --glass-border:      rgba(255,255,255,0.42);
+  --glass-border-hover:rgba(255,255,255,0.65);
+
+  /* Typography — dark on light sky */
+  --text-100: #18100A;
+  --text-200: rgba(24,16,10,0.85);
+  --text-300: rgba(24,16,10,0.60);
+  --text-400: rgba(24,16,10,0.42);
+
+  /* Brand accents */
+  --blue:   #2E86AB;
+  --cyan:   #00A8CC;
+  --indigo: #5C6BC0;
+  --teal:   #00897B;
+  --amber:  #FF8F00;
+  --rose:   #E91E63;
+  --green:  #43A047;
+  --orange: #FF6D00;
+
+  /* Gradients */
+  --grad-brand: linear-gradient(135deg, #FF6B35 0%, #FFC947 100%);
+  --grad-warm:  linear-gradient(135deg, #FF8C61 0%, #FFD4A3 100%);
+  --grad-cool:  linear-gradient(135deg, #2E86AB 0%, #87CEEB 100%);
+  --grad-green: linear-gradient(135deg, #43A047 0%, #00897B 100%);
+  --grad-rose:  linear-gradient(135deg, #E91E63 0%, #FF8F00 100%);
+  --grad-sky:   linear-gradient(180deg, #FF6B35 0%, #FF8C61 20%, #FFC947 45%, #87CEEB 70%, #5BC8E8 100%);
+
+  /* Effects */
+  --shadow-sm:  0 2px 12px rgba(255,107,53,0.18);
+  --shadow-md:  0 8px 32px rgba(255,107,53,0.24);
+  --shadow-lg:  0 20px 60px rgba(255,107,53,0.30);
+  --glow-sun:   0 0 40px rgba(255,195,71,0.45);
+  --glow-blue:  0 0 40px rgba(46,134,171,0.30);
+  --glow-cyan:  0 0 40px rgba(0,168,204,0.20);
+
+  /* Shape */
+  --radius-xs: 10px;
+  --radius-sm: 16px;
+  --radius-md: 22px;
+  --radius-lg: 30px;
+  --radius-xl: 38px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition: all 0.25s var(--ease);
+  --transition-slow: all 0.5s var(--ease);
+
+  /* Layout */
+  --topbar-h: 80px;
+  --bottom-nav-h: 72px;
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+}
+
+/* ── Global Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ── HTML / Body ── */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #FF6B35;
+  color: var(--text-100);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  height: 100dvh;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,107,53,0.35); border-radius: 2px; }
+
+/* ── Base Elements ── */
+button, input, select, textarea {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+a { text-decoration: none; color: inherit; }
+img, svg { display: block; max-width: 100%; }
+p { line-height: 1.6; }
+
+/* ============================================================
+   MORNING SKY ANIMATION KEYFRAMES
+   ============================================================ */
+
+/* Sky gradient shift — dawn to day */
+@keyframes skyShift {
+  0%   { background: linear-gradient(180deg, #C0392B 0%, #E74C3C 12%, #FF6B35 28%, #FF8C61 45%, #FFC947 62%, #87CEEB 80%, #5BC8E8 100%); }
+  25%  { background: linear-gradient(180deg, #E05A20 0%, #FF6B35 15%, #FF8C61 32%, #FFB347 48%, #FFD4A3 65%, #87CEEB 82%, #5BC8E8 100%); }
+  50%  { background: linear-gradient(180deg, #FF6B35 0%, #FF8C61 18%, #FFC947 35%, #FFD4A3 52%, #B8E4F7 70%, #87CEEB 85%, #5BC8E8 100%); }
+  75%  { background: linear-gradient(180deg, #FF8C61 0%, #FFC947 20%, #FFD4A3 40%, #B8E4F7 60%, #87CEEB 78%, #5BC8E8 95%, #2E86AB 100%); }
+  100% { background: linear-gradient(180deg, #FF9A3C 0%, #FFB347 22%, #FFD4A3 42%, #B8E4F7 62%, #87CEEB 80%, #5BC8E8 95%, #2E86AB 100%); }
+}
+
+/* Sun rising */
+@keyframes sunRise {
+  0%   { transform: translate(-50%, 60px) scale(0.85); opacity: 0.6; box-shadow: 0 0 40px 20px rgba(255,195,71,0.4); }
+  40%  { transform: translate(-50%, 0px)  scale(1.0);  opacity: 0.95; box-shadow: 0 0 80px 40px rgba(255,195,71,0.55); }
+  100% { transform: translate(-50%, -30px) scale(1.05); opacity: 1;  box-shadow: 0 0 120px 60px rgba(255,195,71,0.65); }
+}
+
+/* Sun gentle pulse */
+@keyframes sunPulse {
+  0%, 100% { box-shadow: 0 0 80px 40px rgba(255,195,71,0.50), 0 0 160px 80px rgba(255,140,0,0.22); }
+  50%       { box-shadow: 0 0 120px 60px rgba(255,195,71,0.72), 0 0 220px 110px rgba(255,140,0,0.32); }
+}
+
+/* Sun ray rotation */
+@keyframes sunRayRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Cloud drift left */
+@keyframes cloudDrift1 {
+  0%   { transform: translateX(-120px); opacity: 0; }
+  8%   { opacity: 0.92; }
+  92%  { opacity: 0.92; }
+  100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+}
+
+/* Cloud drift right (reverse) */
+@keyframes cloudDrift2 {
+  0%   { transform: translateX(calc(100vw + 180px)); opacity: 0; }
+  8%   { opacity: 0.80; }
+  92%  { opacity: 0.80; }
+  100% { transform: translateX(-200px); opacity: 0; }
+}
+
+/* Cloud drift 3 */
+@keyframes cloudDrift3 {
+  0%   { transform: translateX(-150px); opacity: 0; }
+  6%   { opacity: 0.65; }
+  94%  { opacity: 0.65; }
+  100% { transform: translateX(calc(100vw + 220px)); opacity: 0; }
+}
+
+/* Bird flap (simple oscillation) */
+@keyframes birdFly {
+  0%   { transform: translateX(-80px) translateY(0px); opacity: 0; }
+  5%   { opacity: 1; }
+  50%  { transform: translateX(50vw) translateY(-20px); }
+  95%  { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 80px)) translateY(5px); opacity: 0; }
+}
+
+@keyframes birdWing {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(-0.5); }
+}
+
+/* Horizon glow pulse */
+@keyframes horizonGlow {
+  0%, 100% { opacity: 0.65; transform: scaleX(1); }
+  50%       { opacity: 0.90; transform: scaleX(1.04); }
+}
+
+/* Star twinkle (pre-dawn stars fade out) */
+@keyframes starFade {
+  0%   { opacity: 0.7; }
+  50%  { opacity: 0.15; }
+  100% { opacity: 0; }
+}
+
+/* Petal / dust mote float */
+@keyframes dustFloat {
+  0%   { transform: translate(0, 0) rotate(0deg);   opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translate(30px, -80px) rotate(180deg); opacity: 0; }
+}
+
+/* General utility animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.90); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,195,71,0.35), 0 0 40px rgba(255,107,53,0.15); }
+  50%       { box-shadow: 0 0 40px rgba(255,195,71,0.65), 0 0 80px rgba(255,107,53,0.28); }
+}
+@keyframes navPill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes fillBar {
+  from { width: 0%; }
+}
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.4; }
+  to   { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Animation Utility Classes ── */
+.anim-fade-up  { animation: fadeUp  0.55s var(--ease) both; }
+.anim-fade-in  { animation: fadeIn  0.4s  var(--ease) both; }
+.anim-scale-in { animation: scaleIn 0.4s  var(--ease-spring) both; }
+.anim-slide-in { animation: slideInLeft 0.45s var(--ease) both; }
+
+/* Staggered delays */
+.d-1 { animation-delay: 0.06s; }
+.d-2 { animation-delay: 0.12s; }
+.d-3 { animation-delay: 0.18s; }
+.d-4 { animation-delay: 0.24s; }
+.d-5 { animation-delay: 0.30s; }
+.d-6 { animation-delay: 0.36s; }
+
+/* ── Glass Card ── */
+.card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  transition: var(--transition);
+}
+.card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+/* ── Skeleton Loader ── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.15) 25%,
+    rgba(255,255,255,0.30) 50%,
+    rgba(255,255,255,0.15) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Gradient Text ── */
+.grad-text {
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
