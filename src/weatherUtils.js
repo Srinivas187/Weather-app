@@ -4,10 +4,10 @@ const GEO_API     = 'https://geocoding-api.open-meteo.com/v1/search';
 const WEATHER_API = 'https://api.open-meteo.com/v1/forecast';
 
 export const WMO = {
-  0:  { desc:'Clear Sky',            emoji:'☀️' },
-  1:  { desc:'Mainly Clear',         emoji:'🌤️' },
-  2:  { desc:'Partly Cloudy',        emoji:'⛅' },
-  3:  { desc:'Overcast',             emoji:'☁️' },
+  0:  { desc:'Clear Sky',            emoji:'☀️', nightEmoji: '🌙' },
+  1:  { desc:'Mainly Clear',         emoji:'🌤️', nightEmoji: '🌙' },
+  2:  { desc:'Partly Cloudy',        emoji:'⛅', nightEmoji: '☁️' },
+  3:  { desc:'Overcast',             emoji:'☁️', nightEmoji: '☁️' },
   45: { desc:'Foggy',                emoji:'🌫️' },
   48: { desc:'Rime Fog',             emoji:'🌫️' },
   51: { desc:'Light Drizzle',        emoji:'🌦️' },
@@ -32,7 +32,13 @@ export const WMO = {
   99: { desc:'Thunderstorm + Hail',  emoji:'⛈️' },
 };
 
-export const getWMO  = (code) => WMO[code] ?? { desc:'Unknown', emoji:'🌡️' };
+export const getWMO = (code, isDay = 1) => {
+  const info = WMO[code] ?? { desc:'Unknown', emoji:'🌡️' };
+  return {
+    desc: info.desc,
+    emoji: isDay === 0 && info.nightEmoji ? info.nightEmoji : info.emoji
+  };
+};
 
 export const windDir = (deg) => ['N','NE','E','SE','S','SW','W','NW'][Math.round(deg/45)%8];
 
@@ -101,7 +107,7 @@ export const fetchWeather = async (lat, lon) => {
         'uv_index', 'cloud_cover', 'is_day',
       ].join(','),
       hourly: [
-        'temperature_2m', 'weather_code', 'precipitation_probability', 'cloud_cover',
+        'temperature_2m', 'weather_code', 'precipitation_probability', 'cloud_cover', 'is_day'
       ].join(','),
       daily: [
         'weather_code', 'temperature_2m_max', 'temperature_2m_min',

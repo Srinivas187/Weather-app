@@ -20,10 +20,14 @@ const PALETTES = {
   ],
   night: [['#010812','#021428','#0B2044','#122A52','#1A365D']],
   cloudy: [['#37474F','#546E7A','#78909C','#90A4AE','#B0BEC5']],
+  cloudy_night: [['#0D1B2A','#1A2A3A','#243344','#1F2D3D','#15202B']],
   rain: [['#0D2137','#1B3A55','#1E4060','#16344F','#1F4366']],
+  rain_night: [['#05111E','#0C1F30','#101E2C','#0A1824','#06111A']],
   thunder: [['#080012','#130228','#1E0840','#150332','#25064D']],
   snow: [['#1E3D6B','#2E5A96','#4A7EC2','#7BA8D8','#B8D4EE']],
-  fog: [['#5C6B6E','#7A8D90','#9BAAAC','#B8C5C7','#CFD8DA']]
+  snow_night: [['#0B1728','#12243C','#1A3353','#24446A','#305A88']],
+  fog: [['#5C6B6E','#7A8D90','#9BAAAC','#B8C5C7','#CFD8DA']],
+  fog_night: [['#1A2226','#222C31','#2A373D','#33424A','#3C4D56']]
 };
 
 function lerpColor(a, b, t) {
@@ -52,15 +56,23 @@ function getSceneInfo(code, isDayFlag, localHour) {
 
   // For specific weather events, the weather IS the scene phase.
   if (wState !== 'clear') {
-    return { wState, timePhase: wState, sceneKey: wState };
+    let phaseKey = wState;
+    if (isDayFlag === 0 && wState !== 'thunder') {
+       phaseKey = `${wState}_night`;
+    }
+    return { wState, timePhase: phaseKey, sceneKey: phaseKey };
   }
 
   // If clear, fallback to time phase (morning, day, evening, night)
   let timePhase = 'day';
-  if (localHour >= 5 && localHour < 9) timePhase = 'morning';
-  else if (localHour >= 9 && localHour < 17) timePhase = 'day';
-  else if (localHour >= 17 && localHour < 20) timePhase = 'evening';
-  else timePhase = 'night';
+  if (isDayFlag === 0) {
+    timePhase = 'night';
+  } else {
+    if (localHour >= 5 && localHour < 9) timePhase = 'morning';
+    else if (localHour >= 9 && localHour < 17) timePhase = 'day';
+    else if (localHour >= 17 && localHour < 20) timePhase = 'evening';
+    else timePhase = 'night';
+  }
 
   return { wState: 'clear', timePhase, sceneKey: timePhase };
 }
@@ -165,32 +177,37 @@ class Cloud {
     // Create a unified top-to-bottom gradient (sunlight hitting tops, shadows on bottom)
     const grad = ctx.createLinearGradient(0, minY, 0, maxY);
     if (this.isDark) {
-      grad.addColorStop(0, `rgba(140,155,170,${baseAlpha})`);   // Lighter gray peaks
-      grad.addColorStop(1, `rgba(50,65,80,${baseAlpha * 0.9})`); // Dark heavy rain bottoms
+      grad.addColorStop(0, `rgba(175,190,202,${baseAlpha * 0.8})`);
+      grad.addColorStop(0.45, `rgba(92,111,124,${baseAlpha})`);
+      grad.addColorStop(1, `rgba(32,47,58,${baseAlpha * 0.95})`);
     } else {
-      grad.addColorStop(0, `rgba(255,255,255,${baseAlpha})`);       // Pure white peaks (sunlight)
-      grad.addColorStop(0.7, `rgba(240,245,250,${baseAlpha})`);     // Soft white body
-      grad.addColorStop(1, `rgba(200,215,230,${baseAlpha * 0.9})`); // Soft blueish-gray shadow at bottom
+      grad.addColorStop(0, `rgba(255,255,255,${baseAlpha * 0.9})`);
+      grad.addColorStop(0.6, `rgba(232,239,242,${baseAlpha * 0.9})`);
+      grad.addColorStop(1, `rgba(175,191,200,${baseAlpha * 0.8})`);
     }
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    
-    // Add a soft atmospheric glow/shadow to the cloud edges
-    ctx.shadowColor = this.isDark ? `rgba(30,40,50,${baseAlpha*0.3})` : `rgba(255,255,255,${baseAlpha*0.6})`;
-    ctx.shadowBlur = 20 * this.z;
-    
-    // Draw all puffs as one single interconnected path
+
+    // A blurred under-layer gives the cloud bank atmospheric edges and depth.
+    ctx.filter = `blur(${8 + this.z * 12}px)`;
+    ctx.fillStyle = this.isDark ? `rgba(22,35,45,${baseAlpha * 0.55})` : `rgba(255,255,255,${baseAlpha * 0.35})`;
     ctx.beginPath();
     this.puffs.forEach(p => {
       ctx.moveTo(p.ox + p.rad, p.oy);
       ctx.arc(p.ox, p.oy, p.rad, 0, Math.PI*2);
     });
-    
-    // Fill the entire cloud shape with the beautiful vertical gradient
+    ctx.fill();
+    ctx.filter = 'none';
+
+    // Crisp inner volume keeps the animation legible without looking illustrated.
+    ctx.beginPath();
+    this.puffs.forEach(p => {
+      ctx.moveTo(p.ox + p.rad, p.oy);
+      ctx.arc(p.ox, p.oy, p.rad, 0, Math.PI*2);
+    });
     ctx.fillStyle = grad;
     ctx.fill();
-    
     ctx.restore();
   }
 }
@@ -213,7 +230,8 @@ class RainDrop {
       
     this.speed = this.heavy ? 18 + Math.random() * 10 : 9 + Math.random() * 6;
     this.len   = this.heavy ? 25 + Math.random() * 15 : 12 + Math.random() * 10;
-    this.alpha = 0.15 + Math.random() * 0.3;
+    this.depth = 0.35 + Math.random() * 0.65;
+    this.alpha = 0.08 + this.depth * 0.28;
     this.splash = false;
   }
   update(wind) {
@@ -244,9 +262,9 @@ class RainDrop {
     }
     ctx.save();
     ctx.strokeStyle = `rgba(180,210,240,${this.alpha})`;
-    ctx.lineWidth = this.heavy ? 1.5 : 1;
+    ctx.lineWidth = this.heavy ? 0.8 + this.depth * 1.2 : 0.5 + this.depth;
     ctx.beginPath(); ctx.moveTo(this.x, this.y);
-    ctx.lineTo(this.x + (this.heavy?3:1), this.y + this.len);
+    ctx.lineTo(this.x + (this.heavy ? 3 : 1) * this.depth, this.y + this.len * this.depth);
     ctx.stroke(); ctx.restore();
   }
 }
@@ -301,12 +319,11 @@ class ParticleSystem {
     this.scene = scene;
     const { wState, timePhase } = scene;
     
-    this.stars = (timePhase === 'night' || timePhase === 'evening') ? Array.from({length: 150}, () => ({
+    this.stars = timePhase === 'night' ? Array.from({length: 70}, () => ({
       x: Math.random()*W, y: Math.random()*H*0.7, r: 0.3+Math.random()*1.2, a: Math.random(), tf: 0.5+Math.random()
     })) : [];
-    
-    this.birds = (timePhase === 'morning' || timePhase === 'day' || timePhase === 'evening') 
-      ? Array.from({length: 7}, (_, i) => new Bird(W, H, -100 - i*80, wind)) : [];
+
+    this.birds = [];
       
     this.clouds = [];
     if (wState === 'cloudy' || wState === 'rain' || wState === 'thunder' || wState === 'snow') {
@@ -358,22 +375,21 @@ function drawSun(ctx, W, H, ts, timePhase) {
   const coreColor = '#FFF59D';
   const glowColor = '255,210,60';
 
-  [[5,.05],[3,.1],[1.8,.15]].forEach(([m,a]) => {
+  [[6,.025],[4,.045],[2.2,.12]].forEach(([m,a]) => {
     const g = ctx.createRadialGradient(sx,sy,sr,sx,sy,sr*m);
     g.addColorStop(0,`rgba(${glowColor},${a})`); g.addColorStop(1,`rgba(${glowColor},0)`);
     ctx.beginPath(); ctx.arc(sx,sy,sr*m,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
   });
 
-  ctx.save(); ctx.translate(sx,sy); ctx.rotate(ts*0.0002);
-  for(let i=0;i<16;i++){
-    const a=(i/16)*Math.PI*2, len=sr*(1.2+0.3*Math.sin(ts*0.001+i));
-    ctx.beginPath(); ctx.moveTo(Math.cos(a)*sr, Math.sin(a)*sr); ctx.lineTo(Math.cos(a)*(sr+len),Math.sin(a)*(sr+len));
-    ctx.strokeStyle=`rgba(${glowColor},${0.08+0.04*Math.sin(ts*0.001+i)})`; ctx.lineWidth=2; ctx.stroke();
-  }
-  ctx.restore();
+  const atmosphericGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 1.8);
+  atmosphericGlow.addColorStop(0, 'rgba(255,255,245,0.95)');
+  atmosphericGlow.addColorStop(0.28, 'rgba(255,239,170,0.7)');
+  atmosphericGlow.addColorStop(1, 'rgba(255,185,70,0)');
+  ctx.beginPath(); ctx.arc(sx, sy, sr * 1.8, 0, Math.PI * 2);
+  ctx.fillStyle = atmosphericGlow; ctx.fill();
 
   const disk=ctx.createRadialGradient(sx-sr*.2,sy-sr*.2,sr*.1,sx,sy,sr);
-  disk.addColorStop(0, '#FFFFFF'); disk.addColorStop(0.4, coreColor); disk.addColorStop(1, '#FFB300');
+  disk.addColorStop(0, '#FFFFFF'); disk.addColorStop(0.55, coreColor); disk.addColorStop(1, '#FFD166');
   ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fillStyle=disk; ctx.fill();
 }
 
@@ -477,10 +493,7 @@ export default function SkyBackground({ weatherCode, isDay, localHour, windSpeed
       // 6. Clouds (Drawn ON TOP of rain/lightning for realistic depth)
       sys.clouds.forEach(c => { c.update(propsRef.current.windSpeed); c.draw(ctx, alphaMod); });
 
-      // 7. Birds
-      sys.birds.forEach(b => { b.update(propsRef.current.windSpeed); b.draw(ctx, ts); });
-
-      // 8. Snow & Fog
+      // 7. Snow & Fog
       sys.flakes.forEach(f => { f.update(propsRef.current.windSpeed); f.draw(ctx); });
       sys.fogLayers.forEach(f => f.draw(ctx, ts, propsRef.current.windSpeed));
 
